@@ -57,7 +57,7 @@ export const tokens = {
   EOF: "EOF",
 } as const;
 
-export const charCodes: Record<SingleCharTokenType, number> = {
+export const charCodes = {
   LT: 60,
   GT: 62,
   NOT: 126,
@@ -79,31 +79,18 @@ export const charCodes: Record<SingleCharTokenType, number> = {
   RPAREN: 41,
   LPAREN: 40,
   EQ: 61,
+
+  LF: 10,
+  CR: 13,
+  TAB: 9,
+  SPACE: 32,
+  HASH: 35,
+
+  ZERO: 48,
+  NINE: 57,
+
+  QUOTE: 39,
+  DOUBLE_QUOTE: 34,
 } as const;
 
 export type TokenType = keyof typeof tokens;
-
-export type SingleCharTokenType = Extract<
-  TokenType,
-  | "LPAREN"
-  | "RPAREN"
-  | "LCURLY"
-  | "RCURLY"
-  | "LSQUAR"
-  | "RSQUAR"
-  | "COMMA"
-  | "DOT"
-  | "PLUS"
-  | "MINUS"
-  | "STAR"
-  | "SLASH"
-  | "CARET"
-  | "MOD"
-  | "COLON"
-  | "SEMICOLON"
-  | "QUESTION"
-  | "NOT"
-  | "GT"
-  | "LT"
-  | "EQ"
->;

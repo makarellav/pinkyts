@@ -14,7 +14,7 @@ async function run() {
   const tokens = new Lexer(source).tokenize();
 
   for (const token of tokens) {
-    console.log(token);
+    console.log(`${token}`);
   }
 }
 

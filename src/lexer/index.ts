@@ -1,6 +1,8 @@
 import { Token } from "../token";
 import { charCodes, tokens } from "../token/tokens";
 
+const EOF = 0;
+
 export class Lexer {
   private tokens: Token[] = [];
   private position = -1;
@@ -13,32 +15,58 @@ export class Lexer {
   }
 
   public tokenize(): Token[] {
-    let token = this.nextToken(this.ch);
+    let token = this.nextToken();
 
     while (token.type !== tokens.EOF) {
       this.tokens.push(token);
 
-      token = this.nextToken(this.ch);
+      token = this.nextToken();
     }
 
     return this.tokens;
   }
 
-  private nextToken(ch: number): Token {
+  private nextToken(): Token {
     let token: Token;
 
-    switch (ch) {
-      case 0:
+    if (this.ch === charCodes.HASH) {
+      this.consumeComment();
+    }
+
+    this.consumeWhitespace();
+
+    switch (this.ch) {
+      case EOF:
         token = new Token(tokens.EOF, "");
         break;
       case charCodes.LT:
-        token = new Token(tokens.LT, "<");
+        if (this.peek() === charCodes.EQ) {
+          token = new Token(tokens.LE, "<=");
+
+          this.advance();
+        } else {
+          token = new Token(tokens.LT, "<");
+        }
+
         break;
       case charCodes.GT:
-        token = new Token(tokens.GT, ">");
+        if (this.peek() === charCodes.EQ) {
+          token = new Token(tokens.GE, ">=");
+
+          this.advance();
+        } else {
+          token = new Token(tokens.GT, ">");
+        }
         break;
       case charCodes.NOT:
-        token = new Token(tokens.NOT, "~");
+        if (this.peek() === charCodes.EQ) {
+          token = new Token(tokens.NE, "~=");
+
+          this.advance();
+        } else {
+          token = new Token(tokens.NOT, "~");
+        }
+
         break;
       case charCodes.QUESTION:
         token = new Token(tokens.QUESTION, "?");
@@ -47,7 +75,14 @@ export class Lexer {
         token = new Token(tokens.SEMICOLON, ";");
         break;
       case charCodes.COLON:
-        token = new Token(tokens.COLON, ":");
+        if (this.peek() === charCodes.EQ) {
+          token = new Token(tokens.ASSIGN, ":=");
+
+          this.advance();
+        } else {
+          token = new Token(tokens.COLON, ":");
+        }
+
         break;
       case charCodes.MOD:
         token = new Token(tokens.MOD, "%");
@@ -92,15 +127,82 @@ export class Lexer {
         token = new Token(tokens.LPAREN, "(");
         break;
       case charCodes.EQ:
-        token = new Token(tokens.EQ, "=");
+        if (this.peek() === charCodes.EQ) {
+          token = new Token(tokens.EQ, "==");
+
+          this.advance();
+        } else {
+          token = new Token(tokens.EQ, "=");
+        }
+
         break;
       default:
-        token = new Token(tokens.AND, "&&");
+        if (this.isDigit(this.ch)) {
+          token = this.readNumber();
+        } else {
+          token = new Token(tokens.AND, "&&");
+        }
     }
 
     this.advance();
 
     return token;
+  }
+
+  // private readIdentifier(): Token {
+  //   let token: Token;
+
+  //   return token;
+  // }
+
+  private readNumber(): Token {
+    let token: Token;
+
+    const integer = this.readInteger();
+
+    const decoder = new TextDecoder();
+
+    if (this.ch === charCodes.DOT && this.isDigit(this.peek() ?? 0)) {
+      this.advance();
+
+      const decimal = this.readInteger();
+
+      token = new Token(
+        tokens.FLOAT,
+        `${decoder.decode(integer)}.${decoder.decode(decimal)}`,
+      );
+    } else {
+      token = new Token(tokens.INTEGER, decoder.decode(integer));
+    }
+
+    return token;
+  }
+
+  private consumeWhitespace() {
+    while (
+      this.ch === charCodes.LF ||
+      this.ch === charCodes.CR ||
+      this.ch === charCodes.TAB ||
+      this.ch === charCodes.SPACE
+    ) {
+      if (this.ch === charCodes.LF || this.ch === charCodes.CR) {
+        this.line += 1;
+      }
+
+      this.advance();
+    }
+  }
+
+  private consumeComment() {
+    while (this.ch !== charCodes.LF && this.ch !== EOF) {
+      this.advance();
+    }
+  }
+
+  private peek(n: number = 0) {
+    return this.readPosition + n >= this.source.length
+      ? 0
+      : this.source[this.readPosition + n];
   }
 
   private advance() {
@@ -112,5 +214,19 @@ export class Lexer {
 
     this.position = this.readPosition;
     this.readPosition += 1;
+  }
+
+  private readInteger(): Uint8Array {
+    const position = this.position;
+
+    while (this.isDigit(this.ch)) {
+      this.advance();
+    }
+
+    return this.source.slice(position, this.position);
+  }
+
+  private isDigit(ch: number) {
+    return ch >= charCodes.ZERO && this.ch <= charCodes.NINE;
   }
 }
