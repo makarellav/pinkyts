@@ -78,6 +78,7 @@ export const charCodes: Record<SingleCharTokenType, number> = {
   LCURLY: 123,
   RPAREN: 41,
   LPAREN: 40,
+  EQ: 61,
 } as const;
 
 export type TokenType = keyof typeof tokens;
@@ -104,4 +105,5 @@ export type SingleCharTokenType = Extract<
   | "NOT"
   | "GT"
   | "LT"
+  | "EQ"
 >;

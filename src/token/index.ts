@@ -2,7 +2,15 @@ import type { TokenType } from "./tokens";
 
 export class Token {
   constructor(
-    public type: TokenType,
-    private lexeme: string,
+    public readonly type: TokenType,
+    public readonly lexeme: string,
   ) {}
+
+  public toString() {
+    return this.pp();
+  }
+
+  private pp() {
+    return `Token(${this.type}, ${this.lexeme})`;
+  }
 }

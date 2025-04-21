@@ -91,6 +91,9 @@ export class Lexer {
       case charCodes.LPAREN:
         token = new Token(tokens.LPAREN, "(");
         break;
+      case charCodes.EQ:
+        token = new Token(tokens.EQ, "=");
+        break;
       default:
         token = new Token(tokens.AND, "&&");
     }

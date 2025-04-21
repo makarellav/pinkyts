@@ -1,23 +1,29 @@
-// import { test, expect } from "bun:test";
-// import { Lexer } from "../";
-// import { Token } from "../../token";
-// import {
-//   charCodes,
-//   tokens,
-//   type SingleCharTokenType,
-// } from "../../token/tokens";
+import { describe, expect, test } from "bun:test";
+import { Lexer } from "../";
+import { Token } from "../../token";
+import { tokens } from "../../token/tokens";
 
-// type Entries<TObject> = {
-//   [K in keyof TObject]: [K, TObject[K]];
-// }[keyof TObject][];
+describe.each([
+  ["[", new Token(tokens.LSQUAR, "[")],
+  ["]", new Token(tokens.RSQUAR, "]")],
+  ["{", new Token(tokens.LCURLY, "{")],
+  ["}", new Token(tokens.RCURLY, "}")],
+  ["(", new Token(tokens.LPAREN, "(")],
+  [")", new Token(tokens.RPAREN, ")")],
+  ["+", new Token(tokens.PLUS, "+")],
+  ["-", new Token(tokens.MINUS, "-")],
+  ["*", new Token(tokens.STAR, "*")],
+  [">", new Token(tokens.GT, ">")],
+  ["<", new Token(tokens.LT, "<")],
+  ["=", new Token(tokens.EQ, "=")],
+  ["^", new Token(tokens.CARET, "^")],
+])("should tokenize character %s correctly", (char, token) => {
+  test(`${token}`, () => {
+    const [got] = new Lexer(new TextEncoder().encode(char)).tokenize();
 
-// const cases = (Object.entries(charCodes) as Entries<typeof charCodes>).map(
-//   ([type, charCode]) => [
-//     String.fromCharCode(charCode),
-//     new Token(type, String.fromCharCode(charCode)),
-//   ],
-// );
+    expect(got).toBeDefined();
 
-// test.each(cases)("should correctly tokenize %p", (char, token) => {
-//   expect(token);
-// });
+    expect(got!.lexeme).toBe(token.lexeme);
+    expect(got!.type).toBe(token.type);
+  });
+});
