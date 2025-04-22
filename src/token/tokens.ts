@@ -1,3 +1,5 @@
+import { Token } from "./";
+
 export const tokens = {
   LPAREN: "LPAREN", //  (
   RPAREN: "RPAREN", //  )
@@ -55,6 +57,9 @@ export const tokens = {
 
   // EOF
   EOF: "EOF",
+
+  // Illegal
+  ILLEGAL: "ILLEGAL",
 } as const;
 
 export const charCodes = {
@@ -89,8 +94,37 @@ export const charCodes = {
   ZERO: 48,
   NINE: 57,
 
-  QUOTE: 39,
+  SINGLE_QUOTE: 39,
   DOUBLE_QUOTE: 34,
+
+  a: 97,
+  A: 65,
+  z: 122,
+  Z: 90,
+  UNDERSCORE: 95,
 } as const;
+
+const keywords: Record<string, TokenType> = {
+  if: "IF",
+  then: "THEN",
+  else: "ELSE",
+  true: "TRUE",
+  false: "FALSE",
+  and: "AND",
+  or: "OR",
+  while: "WHILE",
+  do: "DO",
+  for: "FOR",
+  func: "FUNC",
+  null: "NULL",
+  end: "END",
+  print: "PRINT",
+  println: "PRINTLN",
+  ret: "RET",
+};
+
+export function lookupIdentifier(identifier: string): TokenType {
+  return keywords[identifier] ?? tokens.IDENTIFIER;
+}
 
 export type TokenType = keyof typeof tokens;

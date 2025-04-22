@@ -1,5 +1,5 @@
 import { Token } from "../token";
-import { charCodes, tokens } from "../token/tokens";
+import { charCodes, lookupIdentifier, tokens } from "../token/tokens";
 
 const EOF = 0;
 
@@ -139,8 +139,18 @@ export class Lexer {
       default:
         if (this.isDigit(this.ch)) {
           token = this.readNumber();
+
+          return token;
+        } else if (this.isString(this.ch)) {
+          token = this.readString(this.ch);
+
+          return token;
+        } else if (this.isAlpha(this.ch)) {
+          token = this.readIdentifier();
+
+          return token;
         } else {
-          token = new Token(tokens.AND, "&&");
+          token = new Token(tokens.ILLEGAL, "");
         }
     }
 
@@ -148,12 +158,6 @@ export class Lexer {
 
     return token;
   }
-
-  // private readIdentifier(): Token {
-  //   let token: Token;
-
-  //   return token;
-  // }
 
   private readNumber(): Token {
     let token: Token;
@@ -226,7 +230,70 @@ export class Lexer {
     return this.source.slice(position, this.position);
   }
 
+  private readIdentifier(): Token {
+    const rawIdentifier = this.readIdentifierRaw();
+    const decoder = new TextDecoder();
+
+    const identifier = decoder.decode(rawIdentifier);
+
+    const tokenType = lookupIdentifier(identifier);
+
+    return new Token(tokenType, identifier);
+  }
+
+  private readIdentifierRaw(): Uint8Array {
+    const position = this.position;
+
+    let isFirst = true;
+
+    while (
+      this.isAlpha(this.ch) ||
+      this.ch === charCodes.UNDERSCORE ||
+      (!isFirst && this.isDigit(this.ch))
+    ) {
+      this.advance();
+
+      isFirst = false;
+    }
+
+    return this.source.slice(position, this.position);
+  }
+
+  private readString(quote: number): Token {
+    const rawString = this.readStringRaw(quote);
+
+    const decoder = new TextDecoder();
+
+    return new Token(tokens.STRING, decoder.decode(rawString));
+  }
+
+  private readStringRaw(quote: number): Uint8Array {
+    const position = this.position;
+
+    this.advance();
+
+    while (this.ch !== quote && this.ch !== EOF) {
+      this.advance();
+    }
+
+    this.advance();
+
+    return this.source.slice(position, this.position);
+  }
+
+  private isAlpha(ch: number) {
+    return (
+      (ch >= charCodes.a && ch <= charCodes.z) ||
+      (ch >= charCodes.A && ch <= charCodes.Z) ||
+      ch === charCodes.UNDERSCORE
+    );
+  }
+
+  private isString(ch: number) {
+    return ch === charCodes.DOUBLE_QUOTE || ch === charCodes.SINGLE_QUOTE;
+  }
+
   private isDigit(ch: number) {
-    return ch >= charCodes.ZERO && this.ch <= charCodes.NINE;
+    return ch >= charCodes.ZERO && ch <= charCodes.NINE;
   }
 }

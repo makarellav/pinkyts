@@ -7,10 +7,6 @@ export class Token {
   ) {}
 
   public toString() {
-    return this.pp();
-  }
-
-  private pp() {
     return `Token(${this.type}, ${this.lexeme})`;
   }
 }

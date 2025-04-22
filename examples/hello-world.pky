@@ -1,2 +1,9 @@
-# This should be ignored
-~ ~= == > >= < <= : := 123 + 955 * 922.321
+func factorial(n123)
+  if n <= 1 then
+    ret 1
+  else
+    ret n * factorial(n - 1)
+  end
+end
+
+_123world := "hello_123"
