@@ -18,7 +18,9 @@ export class Lexer {
     let token = this.nextToken();
 
     while (token.type !== tokens.EOF) {
-      this.tokens.push(token);
+      if (token.type !== tokens.EMPTY) {
+        this.tokens.push(token);
+      }
 
       token = this.nextToken();
     }
@@ -28,10 +30,6 @@ export class Lexer {
 
   private nextToken(): Token {
     let token: Token;
-
-    if (this.ch === charCodes.HASH) {
-      this.consumeComment();
-    }
 
     this.consumeWhitespace();
 
@@ -97,7 +95,14 @@ export class Lexer {
         token = new Token(tokens.STAR, "*");
         break;
       case charCodes.MINUS:
-        token = new Token(tokens.MINUS, "-");
+        if (this.peek() === charCodes.MINUS) {
+          this.consumeComment();
+
+          token = new Token(tokens.EMPTY, "");
+        } else {
+          token = new Token(tokens.MINUS, "-");
+        }
+
         break;
       case charCodes.PLUS:
         token = new Token(tokens.PLUS, "+");

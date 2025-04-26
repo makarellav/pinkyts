@@ -60,6 +60,9 @@ export const tokens = {
 
   // Illegal
   ILLEGAL: "ILLEGAL",
+
+  // Empty
+  EMPTY: "EMPTY",
 } as const;
 
 export const charCodes = {

@@ -1,3 +1,10 @@
+-------------------------------
+-- ignore me
+-------------------------------
+-- stuff below should work
+
+8 - -23
+
 func factorial(n123)
   if n <= 1 then
     ret 1
